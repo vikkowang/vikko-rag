@@ -3,7 +3,7 @@ from mcp.server.fastmcp import FastMCP
 
 from . import rag
 
-mcp = FastMCP("vikko-rag")
+mcp = FastMCP("vikko-rag", port=9000)
 
 
 @mcp.tool()
@@ -13,5 +13,5 @@ def rag_query(query: str) -> str:
 
 
 if __name__ == "__main__":
-    # Streamable HTTP 传输;Java 侧用 McpClient 连 http://127.0.0.1:8000/mcp
+    # Streamable HTTP 传输;Java 侧用 McpClient 连 http://127.0.0.1:9000/mcp
     mcp.run(transport="streamable-http")

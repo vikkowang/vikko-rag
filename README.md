@@ -56,7 +56,7 @@ python -m vikko_rag.ingest
 python -m vikko_rag.server
 ```
 
-默认 Streamable HTTP 端点在 `http://127.0.0.1:8000/mcp`(host/port 可在 `server.py` 里调)。
+默认 Streamable HTTP 端点在 `http://127.0.0.1:9000/mcp`(host/port 可在 `server.py` 里调)。
 
 ## 目录结构
 
