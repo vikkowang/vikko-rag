@@ -1,0 +1,23 @@
+[project]
+name = "vikko-rag"
+version = "0.1.0"
+description = "RAG 服务(MCP server):本地 BGE embedding + milvus-lite 向量检索 + DeepSeek 生成"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp<2",                        # mcp 2.x 改了 FastMCP API,先用 v1
+    "torch==2.2.2",                 # 最后一版带 macOS x86_64 wheel(Intel Mac)
+    "numpy<2",                      # torch 2.2.2 与 numpy 2.x ABI 不兼容
+    "sentence-transformers<4",      # 4+ 需要更新的 torch
+    "pymilvus[milvus_lite]>=3.0",
+    "openai>=1.40",
+    "python-dotenv>=1.0",
+    "uvicorn>=0.30",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["vikko_rag*"]
