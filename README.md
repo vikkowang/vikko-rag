@@ -57,17 +57,40 @@ python -m vikko_rag.server
 ```
 
 默认 Streamable HTTP 端点在 `http://127.0.0.1:9000/mcp`(host/port 可在 `server.py` 里调)。
+启动时同时会拉起**定时爬虫**(每天 3:00 抓量子位最新文章)。
+
+## 定时爬虫(增量拉取量子位文章)
+
+`server.py` 启动时内置了 APScheduler 定时任务,每天 **3:00** 自动:
+
+1. 抓量子位首页 → 解析最新 10 篇;
+2. 按文章 ID **去重**(已抓过的跳过);
+3. 用 DeepSeek **语义判断广告**,过滤软文;
+4. 把新文章存 `data/` 并增量入库。
+
+配置在 `config.py`:`CRAWL_COUNT`(每次抓几篇)、`SCHEDULE_HOUR`(每天几点)。
+
+手动触发一轮:
+
+```bash
+python -m vikko_rag.crawl
+```
+
+> ⚠️ **milvus-lite 是内嵌单进程的**(有文件锁):定时爬虫必须和 server 同进程(所以集成在 `server.py` 里)。
+> 单独跑 `crawl.py` / `ingest.py` 前要先停掉 server,否则报 `DataDirLockedError`。
 
 ## 目录结构
 
 ```
 vikko_rag/
-├── config.py      # 路径、模型、DeepSeek、切分/检索参数
+├── config.py      # 路径、模型、DeepSeek、切分/检索、爬虫参数
 ├── embedding.py   # 本地 BGE 向量化
 ├── store.py       # milvus-lite 内嵌向量库(免 Docker)
 ├── ingest.py      # 语料切块 + 入库
 ├── rag.py         # 检索 + DeepSeek 生成
-└── server.py      # FastMCP server
+├── crawl.py       # 定时爬虫:抓量子位 → 去重 → 广告过滤 → 入库
+├── ad_filter.py   # 用 DeepSeek 语义判断广告
+└── server.py      # FastMCP server + 内置定时爬虫
 ```
 
 ## 常见问题

@@ -13,6 +13,8 @@ dependencies = [
     "openai>=1.40",
     "python-dotenv>=1.0",
     "uvicorn>=0.30",
+    "requests>=2.31",
+    "apscheduler>=3.10",
 ]
 
 [build-system]

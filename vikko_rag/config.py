@@ -24,3 +24,8 @@ CHUNK_SIZE = 400       # 每块字符数
 CHUNK_OVERLAP = 50     # 相邻块重叠字符数
 TOP_K = 3              # 检索返回的块数
 COLLECTION_NAME = "rag_docs"
+
+# 爬虫配置(定时拉取量子位文章)
+QBITAI_HOME = "https://www.qbitai.com/"
+CRAWL_COUNT = 10       # 每次抓最新多少篇
+SCHEDULE_HOUR = 3      # 每天几点抓(24 小时制)

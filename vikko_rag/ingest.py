@@ -15,8 +15,9 @@ def chunk_text(text: str) -> list[str]:
     return chunks
 
 
-def ingest() -> int:
-    files = list(config.DATA_DIR.glob("*.md"))
+def ingest(files=None) -> int:
+    if files is None:
+        files = list(config.DATA_DIR.glob("*.md"))
     if not files:
         print(f"⚠️  语料目录为空,请把 markdown 放进 {config.DATA_DIR}")
         return 0
