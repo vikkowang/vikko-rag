@@ -46,5 +46,18 @@ def search(query_embedding: list[float], top_k: int = config.TOP_K) -> list[dict
     ]
 
 
+def get_all_chunks() -> list[dict]:
+    """取出库里全部 chunk(文本 + 来源),用于构建 BM25 索引。
+
+    BM25 需要全量语料建倒排;milvus-lite 语料很小(几百块),全量拉取代价可忽略。
+    """
+    res = get_client().query(
+        collection_name=config.COLLECTION_NAME,
+        filter="",
+        output_fields=["text", "source"],
+    )
+    return [{"text": r["text"], "source": r["source"]} for r in res]
+
+
 def count() -> int:
     return get_client().get_collection_stats(config.COLLECTION_NAME)["row_count"]

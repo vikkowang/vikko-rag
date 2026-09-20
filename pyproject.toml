@@ -15,6 +15,8 @@ dependencies = [
     "uvicorn>=0.30",
     "requests>=2.31",
     "apscheduler>=3.10",
+    "jieba>=0.42",                  # BM25 中文分词
+    "rank_bm25>=0.2",               # BM25 关键词检索
 ]
 
 [build-system]

@@ -1,14 +1,14 @@
 # vikko-rag
 
-RAG 服务:本地 BGE embedding + **milvus-lite(内嵌 Milvus)** 向量检索 + DeepSeek 生成,
+RAG 服务:本地 BGE embedding + **milvus-lite(内嵌 Milvus)** 混合检索(BM25 + 向量)+ 重排 + DeepSeek 生成,
 通过 **MCP** 暴露给 `vikko-chat`(Java / Spring AI)调用。
 
 ## 架构
 
 ```
-data/*.md ──切块──► BGE 向量化 ──► milvus-lite(内嵌 Milvus,免 Docker)
+data/*.md ──语义切块──► BGE 向量化 ──► milvus-lite(内嵌 Milvus,免 Docker)
                                         ▲
-                      rag_query(query)  │ 相似度检索 top-k
+   rag_query(query)                     │ 混合检索(BM25+向量,RRF)+ 重排
                                         │
                               DeepSeek 生成(带引用)
                                         │
@@ -16,6 +16,8 @@ data/*.md ──切块──► BGE 向量化 ──► milvus-lite(内嵌 Milvu
                                         ▲
                         vikko-chat 的 McpClient(复用钉钉那套)
 ```
+
+检索流水线(`rag.retrieve`):查询改写 → 混合检索(BM25 + 向量,RRF 融合)→ 重排(DeepSeek listwise)→ top-k。
 
 ## 安装
 
@@ -83,15 +85,32 @@ python -m vikko_rag.crawl
 
 ```
 vikko_rag/
-├── config.py      # 路径、模型、DeepSeek、切分/检索、爬虫参数
+├── config.py      # 路径、模型、DeepSeek、切分/检索/重排、爬虫参数
 ├── embedding.py   # 本地 BGE 向量化
 ├── store.py       # milvus-lite 内嵌向量库(免 Docker)
-├── ingest.py      # 语料切块 + 入库
-├── rag.py         # 检索 + DeepSeek 生成
+├── ingest.py      # 语料语义切块 + 入库
+├── hybrid.py      # 混合检索:BM25 + 向量,RRF 融合
+├── rerank.py      # 重排:DeepSeek listwise 精排
+├── rag.py         # 检索流水线(改写→混合→重排)+ DeepSeek 生成
+├── eval.py        # RAG Triad 评测:Context/Groundedness/Answer Relevance(LLM-as-judge)
 ├── crawl.py       # 定时爬虫:抓量子位 → 去重 → 广告过滤 → 入库
 ├── ad_filter.py   # 用 DeepSeek 语义判断广告
 └── server.py      # FastMCP server + 内置定时爬虫
 ```
+
+## 评测(RAG Triad)
+
+`eval.py` 提供 RAG 三件套评测(LLM-as-judge,**离线**打分,不参与每次查询的在线链路):
+
+- **Context Relevance**:召回的 chunk 与问题相关度 → 查「检索质量」;
+- **Groundedness**:回答是否被资料支撑 → 查「幻觉」;
+- **Answer Relevance**:回答是否答到点上 → 查「生成质量」。
+
+```bash
+.venv/bin/python -m vikko_rag.eval
+```
+
+每条 query 会调多次 DeepSeek,跑前确认 `.env` 有 key 且能连外网。测试集在 `eval.py` 的 `QUERIES` 里,换成自己的问题即可。
 
 ## 常见问题
 

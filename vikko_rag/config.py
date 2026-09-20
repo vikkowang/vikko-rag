@@ -20,10 +20,16 @@ DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEEPSEEK_MODEL = "deepseek-chat"
 
 # 切分与检索参数
-CHUNK_SIZE = 400       # 每块字符数
-CHUNK_OVERLAP = 50     # 相邻块重叠字符数
-TOP_K = 3              # 检索返回的块数
+CHUNK_SIZE = 400       # 每块字符数(语义切分时的软上限)
+CHUNK_OVERLAP = 50     # 相邻块重叠字符数(超长段落硬切时的重叠)
+TOP_K = 3              # 最终生成用的块数(重排后取前 top-k)
 COLLECTION_NAME = "rag_docs"
+
+# 混合检索 + 重排参数
+VECTOR_TOP_K = 8        # 向量路单独召回数
+BM25_TOP_K = 8          # BM25 路单独召回数
+HYBRID_CANDIDATES = 8   # 混合检索(RRF 融合后)交给重排的候选数
+RRF_K = 60              # RRF 融合常数(越大,排名靠前的权重越小)
 
 # 爬虫配置(定时拉取量子位文章)
 QBITAI_HOME = "https://www.qbitai.com/"

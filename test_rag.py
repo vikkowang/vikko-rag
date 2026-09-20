@@ -17,7 +17,7 @@ def show_retrieve(query: str) -> None:
     print(f"\n{'=' * 60}\n🔍 检索: {query}\n{'=' * 60}")
     for i, r in enumerate(rag.retrieve(query), 1):
         text = r["text"].replace("\n", " ")[:60]
-        print(f"  [{i}] 相似度 {r['distance']:.3f} | {r['source']} | {text}...")
+        print(f"  [{i}] 相关度 {r['score']:.4f} | {r['source']} | {text}...")
 
 
 def show_answer(query: str) -> None:
